@@ -39,7 +39,7 @@ So this topic is the **foundation of the whole course**. Everything that follows
 | # | Lesson | Folder | What it covers | Status |
 |---|--------|--------|----------------|--------|
 | 01 | Welcome and Overview | [`01 - Welcome and Overview`](./01%20-%20Welcome%20and%20Overview/) | Course orientation, the big picture of how an LLM works, roadmap, tools and study approach | ✅ Done |
-| 02 | Turning Text into Numeric Tokens | [`02 - Turning Text into Numeric Tokens`](./02%20-%20Turning%20Text%20into%20Numeric%20Tokens/) | Splitting text, building a vocabulary, `word2idx` / `idx2word`, encoder and decoder functions, visualizing tokens, context around a token | ✅ Done |
+| 02 | Turning Text into Numeric Tokens | [`02 - Turning Text into Numeric Tokens`](./02%20-%20Turning%20Text%20into%20Numeric%20Tokens/) | Two folders: `Text2Token_basics` (toy tokenizer, encoder/decoder, context windows) and `Preparing_text` (cleaning and tokenizing a real book) | ✅ Done |
 | 03 | Vector Representation Spaces | [`03 - Vector Representation Spaces`](./03%20-%20Vector%20Representation%20Spaces/) | How integer tokens become dense vectors (embeddings) that live in a space where distance carries meaning | ⏳ Upcoming |
 
 ---
@@ -101,8 +101,13 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 │
 ├── 02 - Turning Text into Numeric Tokens/
 │   ├── README.md
-│   ├── text2tokens.ipynb                       ← notebook (run in Jupyter / Colab)
-│   └── text2tokens.py                          ← same code exported as a script
+│   ├── Text2Token_basics/                      ← toy example
+│   │   ├── README.md
+│   │   ├── text2tokens.ipynb                   ← notebook (run in Jupyter / Colab)
+│   │   └── text2tokens.py                      ← same code exported as a script
+│   └── Preparing_text/                         ← real book: clean, split, vocabulary
+│       ├── README.md
+│       └── preparing_text_for_tokenization.ipynb
 │
 └── 03 - Vector Representation Spaces/
     └── README.md
@@ -113,7 +118,7 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 ## ▶️ How to run the code
 
 ### Option A: Google Colab
-1. Open `text2tokens.ipynb` from the lesson 02 folder.
+1. Open `text2tokens.ipynb` (in `Text2Token_basics`) or `preparing_text_for_tokenization.ipynb` (in `Preparing_text`) from the lesson 02 folder.
 2. Upload it to [Google Colab](https://colab.research.google.com/) (or open it from GitHub).
 3. Run all cells from the top.
 
@@ -121,21 +126,22 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 
 ```bash
 # from the repository root
-pip install numpy matplotlib jupyter
+pip install numpy matplotlib requests jupyter
 jupyter notebook
-# then open: 01 - Text to Vectors Basics/02 - Turning Text into Numeric Tokens/text2tokens.ipynb
+# then open the notebooks inside:
+# 01 - Text to Vectors Basics/02 - Turning Text into Numeric Tokens/
 ```
 
 ### Option C: As a plain script
 
 ```bash
-cd "01 - Text to Vectors Basics/02 - Turning Text into Numeric Tokens"
+cd "01 - Text to Vectors Basics/02 - Turning Text into Numeric Tokens/Text2Token_basics"
 python text2tokens.py
 ```
 
 > `text2tokens.py` is an automatic export of the notebook, so some lines only make sense inside a notebook (for example the bare expressions that display values). When run as a script, only the `print` calls and the matplotlib window produce visible output. The notebook is the better way to follow along.
 
-**Requirements:** Python 3.8+, `numpy`, `matplotlib`. The regular-expression module `re` is part of the standard library.
+**Requirements:** Python 3.8+, `numpy`, `matplotlib`, and `requests` (the `Preparing_text` notebook downloads a book, so it needs internet access). The regular-expression module `re` is part of the standard library.
 
 ---
 
