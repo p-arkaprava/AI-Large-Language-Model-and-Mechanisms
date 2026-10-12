@@ -39,7 +39,7 @@ So this topic is the **foundation of the whole course**. Everything that follows
 | # | Lesson | Folder | What it covers | Status |
 |---|--------|--------|----------------|--------|
 | 01 | Welcome and Overview | [`01 - Welcome and Overview`](./01%20-%20Welcome%20and%20Overview/) | Course orientation, the big picture of how an LLM works, roadmap, tools and study approach | ✅ Done |
-| 02 | Turning Text into Numeric Tokens | [`02 - Turning Text into Numeric Tokens`](./02%20-%20Turning%20Text%20into%20Numeric%20Tokens/) | Two folders: `Text2Token_basics` (toy tokenizer, encoder/decoder, context windows) and `Preparing_text` (cleaning and tokenizing a real book) | ✅ Done |
+| 02 | Turning Text into Numeric Tokens | [`02 - Turning Text into Numeric Tokens`](./02%20-%20Turning%20Text%20into%20Numeric%20Tokens/) | Two folders: `Text2Token_basics` (Part 1: toy tokenizer, encoder/decoder, context windows; Part 2: tokenizing all of *Frankenstein* with plots, Zipf/Heaps statistics and an `<\|unk\|>` token) and `Preparing_text` (cleaning and tokenizing a real book) | ✅ Done |
 | 03 | Vector Representation Spaces | [`03 - Vector Representation Spaces`](./03%20-%20Vector%20Representation%20Spaces/) | How integer tokens become dense vectors (embeddings) that live in a space where distance carries meaning | ⏳ Upcoming |
 
 ---
@@ -84,6 +84,14 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 * Plotting the token sequence shows that repeated words get repeated integers, which is the beginning of "the model can see patterns".
 * Looking at the **context window** around a target token (the words immediately before and after it) previews how language models learn from neighbouring tokens.
 
+**Part 2 (intermediate): a whole novel** (`text2tokens_intermediate.ipynb`)
+* Real text must be **cleaned** first: encoding artefacts (mojibake), non-ASCII characters, digits and case are removed, then the text is split on punctuation + whitespace with one regex.
+* *Frankenstein* gives **73,888 words** but only **7,243 unique tokens**, and the encoder/decoder round trip works on the entire book.
+* **Zipf's law:** word counts fall roughly as 1/rank. *the* appears 4,387 times, while 42% of the vocabulary appears only once. The top 100 words cover 53% of the text.
+* **Heaps' law:** the vocabulary keeps growing as more text is read, so a word-level vocabulary has no natural size limit.
+* Random token IDs give word salad; a **Brownian (±1) walk** over IDs gives alphabetical neighbours (*strife, strive, strong, struggle*), which shows that closeness of IDs is not closeness of meaning.
+* A new sentence (*"Hi I chatgpt am going home this week"*) has 3 out-of-vocabulary words. An **`<|unk|>` special token** stops the encoder from crashing, at the cost of losing those words.
+
 ### Lesson 03 - Vector Representation Spaces *(upcoming)*
 * To be filled in as I complete the lesson.
 
@@ -103,11 +111,16 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 │   ├── README.md
 │   ├── Text2Token_basics/                      ← toy example
 │   │   ├── README.md
-│   │   ├── text2tokens.ipynb                   ← notebook (run in Jupyter / Colab)
-│   │   └── text2tokens.py                      ← same code exported as a script
+│   │   ├── text2tokens.ipynb                   ← Part 1 notebook (run in Jupyter / Colab)
+│   │   ├── text2tokens.py                      ← Part 1 exported as a script
+│   │   ├── text2tokens_intermediate.ipynb      ← Part 2: whole novel, plots, <|unk|>
+│   │   ├── text2tokens_intermediate.py         ← Part 2 exported as a script
+│   │   └── Text_to_Token_Explained.pdf         ← 4-page explainer (Parts 1 and 2)
 │   └── Preparing_text/                         ← real book: clean, split, vocabulary
 │       ├── README.md
-│       └── preparing_text_for_tokenization.ipynb
+│       ├── preparing_text_for_tokenization.ipynb
+│       ├── preparing_text_for_tokenization.py
+│       └── Preparing_Text_for_Tokenization_Explained.pdf
 │
 └── 03 - Vector Representation Spaces/
     └── README.md
@@ -118,7 +131,7 @@ This topic covers the first three arrows in detail and prepares for the fourth.
 ## ▶️ How to run the code
 
 ### Option A: Google Colab
-1. Open `text2tokens.ipynb` (in `Text2Token_basics`) or `preparing_text_for_tokenization.ipynb` (in `Preparing_text`) from the lesson 02 folder.
+1. Open `text2tokens.ipynb` or `text2tokens_intermediate.ipynb` (in `Text2Token_basics`) or `preparing_text_for_tokenization.ipynb` (in `Preparing_text`) from the lesson 02 folder.
 2. Upload it to [Google Colab](https://colab.research.google.com/) (or open it from GitHub).
 3. Run all cells from the top.
 
@@ -137,11 +150,12 @@ jupyter notebook
 ```bash
 cd "01 - Text to Vectors Basics/02 - Turning Text into Numeric Tokens/Text2Token_basics"
 python text2tokens.py
+python text2tokens_intermediate.py     # downloads Frankenstein, needs internet
 ```
 
 > `text2tokens.py` is an automatic export of the notebook, so some lines only make sense inside a notebook (for example the bare expressions that display values). When run as a script, only the `print` calls and the matplotlib window produce visible output. The notebook is the better way to follow along.
 
-**Requirements:** Python 3.8+, `numpy`, `matplotlib`, and `requests` (the `Preparing_text` notebook downloads a book, so it needs internet access). The regular-expression module `re` is part of the standard library.
+**Requirements:** Python 3.8+, `numpy`, `matplotlib`, and `requests` (the `Preparing_text` and `text2tokens_intermediate` notebooks download a book, so they need internet access). The regular-expression module `re` is part of the standard library.
 
 ---
 
@@ -165,10 +179,11 @@ python text2tokens.py
 
 The word-level tokenizer built here is deliberately simple. It is a teaching tool, and it has known weaknesses:
 
-* **Unknown words crash it.** `encoder('hello')` raises a `KeyError` because `hello` is not in the vocabulary (no `<UNK>` token yet).
+* **Unknown words crash it.** `encoder('hello')` raises a `KeyError` because `hello` is not in the vocabulary (no `<UNK>` token yet in Part 1; Part 2 adds an `<|unk|>` fallback, which avoids the crash but maps every unknown word to the same ID).
 * **Punctuation is not handled.** `'be,'` and `'be'` would be different tokens, and `'be,'` is not in the vocabulary.
 * **Whitespace is fragile.** The encoder splits on a single space, so double spaces or a trailing space produce an empty string `''`, which also raises a `KeyError`.
-* **Tiny corpus.** Three sentences give 28 words and a vocabulary of 20. Real models are trained on billions of tokens.
+* **Tiny corpus.** Three sentences give 28 words and a vocabulary of 20. Part 2 scales this to a full novel (73,888 words, 7,243 tokens), but real models are trained on billions of tokens.
+* **The vocabulary does not scale.** On the novel, 42% of the vocabulary appears only once and the vocabulary keeps growing with more text (Zipf and Heaps laws). This is the main motivation for subword tokenizers.
 * **IDs are arbitrary.** The index of a word is just its alphabetical position. Nothing about the number `16` says anything about the word `to`. Giving numbers meaning is exactly what embeddings are for.
 
 These are not mistakes to hide. They are the motivation for subword tokenizers such as Byte Pair Encoding, special tokens, and embeddings, which come later.

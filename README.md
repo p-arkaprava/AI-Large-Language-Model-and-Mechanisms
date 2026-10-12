@@ -138,6 +138,23 @@ Raw Text → Text Processing → Words → Vocabulary → word2idx → Integer T
 
 The current implementation is intentionally simple and is the foundation for more advanced tokenization and language-model components.
 
+### Latest — Tokenizing a Whole Novel (Text → Tokens, Part 2)
+
+The toy tokenizer was scaled up to a complete book, *Frankenstein* by Mary Shelley, in [`text2tokens_intermediate.ipynb`](./01%20-%20Text%20to%20Vectors%20Basics/02%20-%20Turning%20Text%20into%20Numeric%20Tokens/Text2Token_basics/text2tokens_intermediate.ipynb) (fully annotated, with 5 plots and a 2-page explainer added to [`Text_to_Token_Explained.pdf`](./01%20-%20Text%20to%20Vectors%20Basics/02%20-%20Turning%20Text%20into%20Numeric%20Tokens/Text2Token_basics/Text_to_Token_Explained.pdf)).
+
+* Cleaning real text: encoding artefacts, non-ASCII characters, digits and case
+* Splitting on punctuation + whitespace with a single regex
+* **73,888 words → 7,243-token vocabulary**, with a perfect encode/decode round trip on the whole book
+* Random and Brownian-walk token generation as a zero-knowledge baseline
+* Word-length distribution, top-word frequencies, **Zipf's law** and **Heaps' law**
+* The out-of-vocabulary problem, and an **`<|unk|>` special token** as a first fix
+
+```text
+Raw Book → Clean → Split → Vocabulary (7,243) → word2idx → Integer Tokens → <|unk|> for unseen words
+```
+
+Key insight: 42% of the vocabulary appears only once and the vocabulary keeps growing with more text, which is why real LLMs use **subword tokenizers** instead of whole words.
+
 ---
 
 ## 🗂️ Repository Structure
@@ -152,7 +169,16 @@ Deep-Learning-and-Machine-Learning-Models/
 │   ├── 01 - Welcome and Overview/
 │   │   └── README.md
 │   ├── 02 - Turning Text into Numeric Tokens/
-│   │   └── README.md
+│   │   ├── README.md
+│   │   ├── Text2Token_basics/
+│   │   │   ├── README.md
+│   │   │   ├── text2tokens.ipynb / .py                 ← Part 1: toy tokenizer
+│   │   │   ├── text2tokens_intermediate.ipynb / .py    ← Part 2: whole novel
+│   │   │   └── Text_to_Token_Explained.pdf             ← explainer, Parts 1-2
+│   │   └── Preparing_text/
+│   │       ├── README.md
+│   │       ├── preparing_text_for_tokenization.ipynb / .py
+│   │       └── Preparing_Text_for_Tokenization_Explained.pdf
 │   └── 03 - Vector Representation Spaces/
 │       └── README.md
 │
@@ -168,7 +194,8 @@ Deep-Learning-and-Machine-Learning-Models/
 Each lesson folder contains:
 
 * `README.md`: my notes and key takeaways
-* notebooks, code, and experiments for that lesson, added as I go
+* notebooks (`.ipynb`) with a `.py` export, and an explainer PDF with figures
+* experiments for that lesson, added as I go
 
 ---
 
@@ -204,9 +231,10 @@ Instead of treating an LLM as a black box, this project breaks the architecture 
 
 ## 🛠️ Technologies
 
-* Python
+* Python (`re` for regex-based cleaning and splitting, `collections.Counter`)
 * NumPy
 * Matplotlib
+* Requests (downloading Project Gutenberg books)
 * Jupyter Notebook / Google Colab
 * PyTorch (introduced later in the course)
 
@@ -241,6 +269,20 @@ To go from understanding basic tokenization to implementing and evaluating a com
 * Encoding text to integer tokens and decoding back
 
 **Next:** Vector representation spaces, then dataset construction and context-window based training.
+
+### 2026-10-12
+
+**Topic:** Tokenizing a whole novel (Text → Tokens, Part 2)
+
+**Done:**
+
+* Added `text2tokens_intermediate.ipynb` and its `.py` export: *Frankenstein* cleaned, split and tokenized (73,888 words, 7,243-token vocabulary)
+* Annotated every step with markdown explanations and added 5 plots (story as token IDs, uniform vs Brownian random tokens, word-length distribution, top words + Zipf + Heaps, `<|unk|>` encoding)
+* Handled out-of-vocabulary words with an `<|unk|>` special token
+* Fixed small bugs: regex escape warnings, an off-by-one in the word-length count, a skipped `<|unk|>` ID
+* Extended `Text_to_Token_Explained.pdf` with two pages on Part 2; updated the lesson and topic READMEs
+
+**Next:** Vector representation spaces (embeddings).
 
 ---
 

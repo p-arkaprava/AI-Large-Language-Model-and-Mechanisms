@@ -7,6 +7,8 @@
 | File | Description |
 |------|-------------|
 | [`preparing_text_for_tokenization.ipynb`](./preparing_text_for_tokenization.ipynb) | The notebook with all code and outputs |
+| [`preparing_text_for_tokenization.py`](./preparing_text_for_tokenization.py) | The same code exported as a Python script |
+| [`Preparing_Text_for_Tokenization_Explained.pdf`](./Preparing_Text_for_Tokenization_Explained.pdf) | Explainer PDF with figures |
 | `README.md` | These notes |
 
 ---
@@ -341,5 +343,7 @@ The notebook prints with `print(idxs), print('')`. This builds a small tuple, wh
 ```text
 Real Text → Clean → Split → Filter → Vocabulary → word2idx → Integer Tokens → Embeddings (next lesson)
 ```
+
+**Next step:** [`../Text2Token_basics/text2tokens_intermediate.ipynb`](../Text2Token_basics/text2tokens_intermediate.ipynb) applies the same pipeline to *Frankenstein* (73,888 words, 7,243 tokens) and adds word-frequency statistics (Zipf and Heaps laws), Brownian random tokens, and an `<|unk|>` token for words outside the vocabulary.
 
 Back to the [lesson overview](../README.md).

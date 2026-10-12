@@ -1,13 +1,18 @@
-# Text2Token_basics: Turning Text into Numeric Tokens (toy example)
+# Text2Token_basics: Turning Text into Numeric Tokens
 
 > **Lesson goal:** build a tokenizer from scratch. Take raw sentences, split them into words, build a vocabulary, assign every word an integer, and write an encoder and decoder that convert text to numbers and back.
+>
+> **Part 1 (toy):** three sentences, 20-word vocabulary. **Part 2 (intermediate, new):** the same tokenizer on a whole novel, *Frankenstein* (73,888 words, 7,243-word vocabulary), with plots, word statistics and an `<|unk|>` token for unknown words.
 
 📄 **Files in this folder**
 
 | File | Description |
 |------|-------------|
-| [`text2tokens.ipynb`](./text2tokens.ipynb) | The notebook with all code and outputs |
-| [`text2tokens.py`](./text2tokens.py) | The same code exported as a Python script |
+| [`text2tokens.ipynb`](./text2tokens.ipynb) | **Part 1:** toy tokenizer notebook with all code and outputs |
+| [`text2tokens.py`](./text2tokens.py) | Part 1 exported as a Python script |
+| [`text2tokens_intermediate.ipynb`](./text2tokens_intermediate.ipynb) | **Part 2:** tokenizing a whole novel, fully annotated, 5 plots, executed outputs |
+| [`text2tokens_intermediate.py`](./text2tokens_intermediate.py) | Part 2 exported as a Python script |
+| [`Text_to_Token_Explained.pdf`](./Text_to_Token_Explained.pdf) | 4-page explainer with figures: pages 1-2 cover Part 1, pages 3-4 cover Part 2 |
 | `README.md` | These notes |
 
 ---
@@ -25,7 +30,8 @@
 9. [From this toy tokenizer to real LLM tokenizers](#-from-this-toy-tokenizer-to-real-llm-tokenizers)
 10. [Common pitfalls and debugging notes](#-common-pitfalls-and-debugging-notes)
 11. [Exercises to try](#-exercises-to-try)
-12. [Key takeaways](#-key-takeaways)
+12. [Part 2 (intermediate): tokenizing a whole novel](#-part-2-intermediate-tokenizing-a-whole-novel)
+13. [Key takeaways](#-key-takeaways)
 
 ---
 
@@ -333,7 +339,7 @@ encoder('to  be')        # KeyError: ''        -> double space makes an empty "w
 
 Possible fixes, to be implemented later:
 
-* add an `<UNK>` entry to the vocabulary and use `word2idx.get(w, word2idx['<UNK>'])`;
+* add an `<UNK>` entry to the vocabulary and use `word2idx.get(w, word2idx['<UNK>'])` (**done in Part 2**, as `<|unk|>`);
 * separate punctuation with a regex such as `re.findall(r"\w+|[^\w\s]", text)`;
 * use `text.split()` (no argument), which collapses repeated whitespace;
 * reserve special tokens such as `<PAD>` and `<EOS>`.
@@ -358,6 +364,61 @@ Other things to remember:
 
 ---
 
+## 📗 Part 2 (intermediate): tokenizing a whole novel
+
+**Notebook:** [`text2tokens_intermediate.ipynb`](./text2tokens_intermediate.ipynb) · **Explainer:** pages 3-4 of [`Text_to_Token_Explained.pdf`](./Text_to_Token_Explained.pdf)
+
+Part 2 keeps the Part 1 idea (one lowercase word = one token, `word2idx` / `idx2word`) and applies it to *Frankenstein* by Mary Shelley (Project Gutenberg eBook #84). The notebook is organised into 13 annotated sections, each with a markdown explanation before the code.
+
+```text
+Raw book (446,582 chars) → clean → split → words (73,888) → vocab (7,243) → encoder/decoder → <|unk|>
+```
+
+### What the notebook does
+
+| # | Section | Code | Result |
+|---|---------|------|--------|
+| 2 | Get the book | `requests.get(url).text` | 446,582 characters |
+| 3 | Clean the text | replace `\r\n`, mojibake quotes/dashes and `_`; `re.sub(r'[^\x00-\x7F]+', ' ', ...)`; `re.sub(r'\d+', '', ...)`; `.lower()` | ASCII-only, no digits, one case |
+| 4 | Split | `re.split(rf'[{string.punctuation}\s]+', text)`, drop empty and 1-letter items | 73,888 words |
+| 5 | Vocabulary | `sorted(set(words))`, `word2idx`, `idx2word` | 7,243 unique words (`abandon` = 0 … `zeal` = 7242) |
+| 6 | Encoder / decoder | NumPy loop into an `int` array; `' '.join(...)` | round trip on the whole book: `True` |
+| 7 | 📊 Story as numbers | encode the opening of Letter 1 | repeated words sit at the same height |
+| 8 | Random tokens | `np.random.randint` (uniform) and `np.cumsum(np.random.choice([1,-1],50))` (Brownian walk) | word salad; the walk decodes to alphabetical neighbours (*strife, strive, strong, struggle …*) |
+| 9 | 📊 Word lengths | length counts for text vs vocabulary | mean 4.65 chars; text peaks at 3, vocabulary at 7 |
+| 10 | 📊 Frequencies, Zipf, Heaps | `collections.Counter`, log-log rank plot, vocabulary growth | 42% of words occur once; top 100 words cover 53% of the text |
+| 11 | New sentence | encode `'Hi I chatgpt am going home this week'` | `KeyError: 'hi'` (3 of 8 words unknown) |
+| 12 | `<\|unk\|>` token | add the special token at ID `len(word2idx)` and fall back to it | `[7243 7243 7243 246 2879 3150 6444 7034]` |
+
+### Plots added
+
+1. **The opening of Letter 1 as token IDs** — repeated words (`to`, `you`) appear at identical heights; neighbouring IDs carry no meaning.
+2. **Uniform vs Brownian random tokens** — side by side, with the walk labelled by the words it visits.
+3. **Word-length distribution** — running text vs unique vocabulary.
+4. **Top-20 words, Zipf's law and Heaps' law** — why word-level vocabularies explode.
+5. **The new sentence encoded** — `<|unk|>` tokens highlighted.
+
+### What Part 2 adds to the picture
+
+* **Real text needs cleaning first.** Encoding artefacts, curly quotes, digits and case would otherwise create thousands of near-duplicate tokens.
+* **Frequencies are extremely skewed (Zipf).** *the* appears 4,387 times; 3,076 words appear exactly once.
+* **The vocabulary never stops growing (Heaps).** More text always brings new words, so a word vocabulary has no natural size, and the embedding table and softmax grow with it.
+* **Closed vocabularies break on new words.** `hi` (not in an 1818 novel), `i` (removed by the length filter) and `chatgpt` (a 2022 word) are all out of vocabulary.
+* **`<|unk|>` keeps the encoder alive but loses information.** All unknown words decode to the same token. Subword tokenizers (BPE) are the real fix.
+
+### Fixes made while annotating the first draft
+
+| Issue | Effect | Fix |
+|-------|--------|-----|
+| `'\d+'` and `f'[...\s]+'` without `r` | `SyntaxWarning: invalid escape sequence` | `r'\d+'`, `rf'[...\s]+'` |
+| `np.zeros(int(np.max(numChars)))` | the longest words (18 letters) were never counted | allocate `max + 1` slots |
+| `word2idx_new['<\|unk\|>'] = len(word2idx)+1` | ID 7243 skipped, a hole in the ID range | `len(word2idx)` (= 7243) |
+| `encoder(words_new, word2idx)` raising `KeyError` | "Run all" stopped halfway | wrapped in `try/except` with an explanation |
+| Brownian walk near the vocabulary edges | IDs could leave `[0, nLex-1]` | `np.clip(..., 0, nLex-1)` |
+| No random seed | different output every run | `np.random.seed(42)` |
+
+---
+
 ## ✅ Key takeaways
 
 * **Tokenization converts text to integers and back, and it must be reversible and consistent.**
@@ -366,12 +427,13 @@ Other things to remember:
 * **Integer IDs are labels, not quantities.** They carry no meaning on their own.
 * **Context** (the neighbours of a token) is the signal language models learn from.
 * A word-level tokenizer is simple but brittle. Real LLMs use subword tokenizers built on the same two-table idea.
+* **On a real book (Part 2)** the vocabulary is dominated by rare words and keeps growing with more text; an `<|unk|>` token prevents crashes but discards information.
 
 ```text
 Raw Text → Text Processing → Words → Vocabulary → word2idx → Integer Tokens → Neural Network
 ```
 
-**Related:** the real-book version is in [`../Preparing_text`](../Preparing_text/).
+**Related:** another real-book version (cleaning and splitting walkthrough) is in [`../Preparing_text`](../Preparing_text/).
 
 **Next lesson:** [03 - Vector Representation Spaces](../../03%20-%20Vector%20Representation%20Spaces/): turning these integers into meaningful vectors.
 
