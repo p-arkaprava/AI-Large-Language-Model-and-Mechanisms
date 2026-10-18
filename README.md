@@ -1,4 +1,4 @@
-# 🧠 Building an LLM From Scratch
+#  🧠 Building an LLM From Scratch
 
 A hands-on, day-by-day journey through **building a Large Language Model (LLM) from scratch**, tracked through code, experiments, notes, and implementations.
 
