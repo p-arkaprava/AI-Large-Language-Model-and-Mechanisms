@@ -10,7 +10,7 @@ Original file is located at
 """
 
 # typical libraries...
-import numpy as np
+import numpy as  np
 
 # for importing and working with texts
 import requests
