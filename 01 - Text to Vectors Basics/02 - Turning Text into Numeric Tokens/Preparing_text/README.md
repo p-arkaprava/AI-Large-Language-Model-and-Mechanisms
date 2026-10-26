@@ -1,6 +1,6 @@
 # Preparing_text: Preparing Real Text for Tokenization
 
-> **Goal:** take a real book from the internet, clean it, split it into words, build a vocabulary, and convert the words to integer tokens and back. This is the same idea as `Text2Token_basics`, but on real, messy text.
+> **Goal:** take a real  book from the internet, clean it, split it into words, build a vocabulary, and convert the words to integer tokens and back. This is the same idea as `Text2Token_basics`, but on real, messy text.
 
 📄 **Files in this folder**
 
