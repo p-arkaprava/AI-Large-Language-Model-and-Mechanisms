@@ -1,7 +1,7 @@
 # 01 - Text to Vectors Basics
 
 > **Big idea:** a neural network cannot read words. It can only do arithmetic on numbers.
-> This topic covers the first half of the bridge between human language and a language model: **turning raw text into numbers**, and then **turning those numbers into vectors that carry meaning**.
+> This topic covers the  first half of the bridge between human language and a language model: **turning raw text into numbers**, and then **turning those numbers into vectors that carry meaning**.
 
 ---
 
