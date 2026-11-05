@@ -97,7 +97,7 @@ text = book.text
 print(type(text))
 print(f'{len(text):,} characters')
 
-text[:2000]
+text[:30]
 
 r"""---
 ## 3 · Clean the text 🧹
