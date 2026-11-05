@@ -11,7 +11,7 @@ r"""# 📖 Text → Tokens (Intermediate): Tokenizing a Whole Novel
 
 **Course:** LLM from Scratch · **Topic 01:** Text to Vectors Basics · **Lesson 02:** Turning Text into Numeric Tokens
 
-In `text2tokens.ipynb` we built a word-level tokenizer for **three sentences**. Here we scale the same idea up to a **complete novel**, *Frankenstein* by Mary Shelley (Project Gutenberg eBook #84), and look at what changes when the text is real, long and messy.
+In `text2tokens.ipynb` we built a word-level tokenizer  for **three sentences**. Here we scale the same idea up to a **complete novel**, *Frankenstein* by Mary Shelley (Project Gutenberg eBook #84), and look at what changes when the text is real, long and messy.
 
 ```text
  Raw book (446,582 characters)
